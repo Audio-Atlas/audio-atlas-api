@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "audio-atlas-api"
+version = "0.1.0"
+description = ""
+authors = ["smdbs <1289707349@qq.com>"]
+readme = "README.md"
+packages = [{include = "audio_atlas_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.1.0"
+gunicorn = "^23.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
