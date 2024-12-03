@@ -1,10 +1,16 @@
 from flask import  Blueprint, jsonify, request, send_file
 import os
+import torch
 import numpy as np
 import pickle
+import laion_clap
+from .utils import formatAudioResponseData
+
 
 main = Blueprint("main", __name__)
 audio = Blueprint("audio", __name__)
+# sfx = Blueprint("sfx", __name__)
+retrieve = Blueprint("retrieve", __name__)
 
 
 DATA_DIR = os.getenv("DATA_DIR")
@@ -13,12 +19,15 @@ WAV_PARENT_DIR = os.getenv("WAV_PARENT_DIR")
 INDEX_FILENAME = os.getenv("INDEX_FILENAME")
 EMBEDDINGS_FILENAME = os.getenv("EMBEDDINGS_FILENAME")
 
-AudioVectors = np.load(os.path.join(DATA_DIR, EMBEDDINGS_FILENAME))
+AudioVectors = torch.load(os.path.join(DATA_DIR, EMBEDDINGS_FILENAME))
 NUM_FILES = len(AudioVectors)
 
 with open(os.path.join(DATA_DIR, INDEX_FILENAME), "rb") as pickle_file:
     FileIndex = pickle.load(pickle_file)
-    Keys = list(FileIndex.keys())
+    Keys = np.array(list(FileIndex.keys()))
+
+AudioFeatureExtractor = laion_clap.CLAP_Module(enable_fusion=False)
+AudioFeatureExtractor.load_ckpt()
 
 
 @main.route("/")
@@ -87,7 +96,43 @@ def get_audio_data():
 
     return jsonify(data)
         
+@retrieve.route("/")
+def retrieve_similar_clips():
+    if request.method == "POST":
+        if len(request.data) == 0:
+                return jsonify({
+                    "error": "No audio file",
+                    "message": "No audio file was provided. Please include byte data in post request."
+                }), 400
+        # generatedAudioEmbedding = AudioFeatureExtractor.get_audio_embedding_from_filelist([os.path.join("/home/jose/", "audio-atlas-api", "foley_bottles_beer_6_pack_in_cardboard_case_movement_clink_001_75069.wav")], use_tensor=True)
+        generatedAudioEmbedding = AudioFeatureExtractor.get_audio_embedding_from_data(x = request.data, use_tensor=True)
+        
+        generatedAudioEmbedding = torch.nn.functional.normalize(generatedAudioEmbedding, p=2, dim=-1)
 
+        cosineSimilarities = torch.mm(generatedAudioEmbedding, AudioVectors.T)
+        _, topKIdxs = torch.topk(cosineSimilarities, 10)
+        topKIdxs = topKIdxs.flatten()
+        topKKeys = Keys[topKIdxs]
+        topKClips =  [FileIndex[key] for key in topKKeys]
+        similarClipsData = formatAudioResponseData(topKClips, topKKeys)
+        
+
+        return jsonify(similarClipsData)
+
+    return jsonify({"Message": "Be post"})
+
+# def formatAudioResponseData(idxs):
+#     data = []
+#     for clipID in Keys[idxs]:
+#         fileData = FileIndex[clipID]
+#         data.append({
+#             "id": clipID,
+#             "name": fileData["name"],
+#             "length": fileData["formattedLength"]
+#         })
+        
+        
+#     return data
         
 
 
