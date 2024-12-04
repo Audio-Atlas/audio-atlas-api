@@ -5,8 +5,7 @@ from stable_audio_tools import get_pretrained_model
 from stable_audio_tools.inference.generation import generate_diffusion_cond
 
 from huggingface_hub import login
-from google.colab import userdata
-login(token = userdata.get('HF_TOKEN'))
+login(token = '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')
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
