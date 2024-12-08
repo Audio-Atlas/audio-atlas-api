@@ -38,8 +38,8 @@ Retrieves information on audio files in a batched manner. The available informat
 #### **Parameters:**
 | Parameter   | Type     | Description                                                                                      | Default | Constraints                              |
 |-------------|----------|--------------------------------------------------------------------------------------------------|---------|------------------------------------------|
-| `batchSize` | Integer  | Specifies how many audio clips to retrieve in a single batch.                                    | 50      | Must be between **1 and 100**.           |
-| `batchNumber` | Integer | Specifies which batch to retrieve for the given `batchSize`.                                    | 0       | Must be between **0 and (TotalFiles / batchSize - 1)**. |
+| `pageSize` | Integer  | Specifies how many audio clips to retrieve in a single batch.                                    | 50      | Must be between **1 and 100**.           |
+| `pageNumber` | Integer | Specifies which batch to retrieve for the given `pageSize`.                                    | 0       | Must be between **0 and (TotalFiles / pageSize - 1)**. |
 
 #### **Example Output:**
 ```json
@@ -72,12 +72,21 @@ Retrieves the top `k` most similar audio clips from the server based on cosine s
 #### **Parameters:**
 | Parameter | Type    | Description                                                                 | Default | Constraints                       |
 |-----------|---------|-----------------------------------------------------------------------------|---------|-----------------------------------|
-| `k`       | Integer | Specifies the number of similar audio clips to retrieve.                   | 10      | Must be between **1 and 100**.    |
+| `pageSize` | Integer  | Specifies how many similar audio clips to retrieve in a single batch.                                    | 50      | Must be between **1 and 100**.           |
+| `pageNumber` | Integer | Specifies which batch to retrieve for the given `pageSize`.                                    | 0       | Must be between **0 and (TotalFiles / pageSize - 1)**. |
 | `query`   | String  | The text query used to find similar audio clips. **Must be URL-encoded.**   | None    | Required.                         |
 
 #### **Example URL:**
 ```
 /api/v1/retrieve/?k=5&query=bottle+clink
+```
+
+#### **Example Output:**
+```json
+[
+{"id": "ID1", "length": "00:00.68", "name": "Audio Clip 1", "similarity": 0.6627258658409119},
+{"id": "ID2", "length": "00:01.05", "name": "Audio Clip 1", "similarity": 0.659700870513916}
+]
 ```
 
 ---
