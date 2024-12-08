@@ -78,7 +78,7 @@ Retrieves the top `k` most similar audio clips from the server based on cosine s
 
 #### **Example URL:**
 ```
-/api/v1/retrieve/?k=5&query=bottle+clink
+/api/v1/retrieve/?pageSize=50&pageNumber=0&query=bottle+clink
 ```
 
 #### **Example Output:**
