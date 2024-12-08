@@ -30,7 +30,7 @@ poetry run gunicorn --bind 0.0.0.0:5000 audio_atlas_api
 ### Endpoints
 
 `/api/v1/audio/?pageSize=50&pageNumber=0`  
-Retrieves information on audio files in a batched manner. The available information includes:
+Retrieves information on audio files in a batched manner and returns the number of pages for the specified pageSize. The available information on audio clips includes:
 - **ID**: The unique identifier for the audio file.
 - **Name**: The name of the audio file.
 - **Length**: The duration of the audio file.
@@ -39,14 +39,17 @@ Retrieves information on audio files in a batched manner. The available informat
 | Parameter   | Type     | Description                                                                                      | Default | Constraints                              |
 |-------------|----------|--------------------------------------------------------------------------------------------------|---------|------------------------------------------|
 | `pageSize` | Integer  | Specifies how many audio clips to retrieve in a single batch.                                    | 50      | Must be between **1 and 100**.           |
-| `pageNumber` | Integer | Specifies which batch to retrieve for the given `pageSize`.                                    | 0       | Must be between **0 and (TotalFiles / pageSize - 1)**. |
+| `pageNumber` | Integer | Specifies which batch to retrieve for the given `pageSize`.                                    | 0       | Must be between **0 and (TotalFiles / pageSize)**. |
 
 #### **Example Output:**
 ```json
-[
-  {"id": "ID1", "length": "00:01.50", "name": "Audio Clip 1"},
-  {"id": "ID2", "length": "00:02.50", "name": "Audio Clip 2"}
-]
+{
+  "data": [
+    {"id": "ID1", "length": "00:01.50", "name": "Audio Clip 1"},
+    {"id": "ID2", "length": "00:02.50", "name": "Audio Clip 2"}
+  ],
+  "totalPages": 291
+}
 ```
 
 ---
@@ -67,13 +70,13 @@ Retrieves the audio clip from the server with the specified `AudioID`. You can s
 ---
 
 `/api/v1/retrieve/?pageSize=50&pageNumber=0&query=<TextQuery>`  
-Retrieves the top `k` most similar audio clips from the server based on cosine similarity to the given text query.
+Given a query, retrieves the most similar audio clips from the server based on cosine similarity. In addition to the audio data, it returns the total number of relevant clips (has a similarity greater than 0.5) and the total number of pages for the given pageSize.
 
 #### **Parameters:**
 | Parameter | Type    | Description                                                                 | Default | Constraints                       |
 |-----------|---------|-----------------------------------------------------------------------------|---------|-----------------------------------|
 | `pageSize` | Integer  | Specifies how many similar audio clips to retrieve in a single batch.                                    | 50      | Must be between **1 and 100**.           |
-| `pageNumber` | Integer | Specifies which batch to retrieve for the given `pageSize`.                                    | 0       | Must be between **0 and (TotalFiles / pageSize - 1)**. |
+| `pageNumber` | Integer | Specifies which batch to retrieve for the given `pageSize`.                                    | 0       | Must be between **0 and (TotalSimilarFiles / pageSize)**. |
 | `query`   | String  | The text query used to find similar audio clips. **Must be URL-encoded.**   | None    | Required.                         |
 
 #### **Example URL:**
@@ -83,10 +86,14 @@ Retrieves the top `k` most similar audio clips from the server based on cosine s
 
 #### **Example Output:**
 ```json
-[
-{"id": "ID1", "length": "00:00.68", "name": "Audio Clip 1", "similarity": 0.6627258658409119},
-{"id": "ID2", "length": "00:01.05", "name": "Audio Clip 1", "similarity": 0.659700870513916}
-]
+{
+  "data": [
+    {"id": "ID1", "length": "00:00.68", "name": "Audio Clip 1", "similarity": 0.6627258658409119},
+    {"id": "ID2", "length": "00:01.05", "name": "Audio Clip 1", "similarity": 0.659700870513916}
+  ],
+  "totalClips": 2,
+  "totalPages": 1
+}
 ```
 
 ---
