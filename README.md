@@ -29,7 +29,7 @@ poetry run gunicorn --bind 0.0.0.0:5000 audio_atlas_api
 
 ### Endpoints
 
-`/api/v1/audio/?batchSize=50&batchNumber=0`  
+`/api/v1/audio/?pageSize=50&pageNumber=0`  
 Retrieves information on audio files in a batched manner. The available information includes:
 - **ID**: The unique identifier for the audio file.
 - **Name**: The name of the audio file.
@@ -66,7 +66,7 @@ Retrieves the audio clip from the server with the specified `AudioID`. You can s
 
 ---
 
-`/api/v1/retrieve/?k=10&query=<TextQuery>`  
+`/api/v1/retrieve/?pageSize=50&pageNumber=0&query=<TextQuery>`  
 Retrieves the top `k` most similar audio clips from the server based on cosine similarity to the given text query.
 
 #### **Parameters:**
